@@ -6,10 +6,9 @@ function Create() {
   const [boards, setBoards] = useState([]);
 
   useEffect(() => {
-    const storedBoards = JSON.parse(window.localStorage.getItem("boards"));
-    if (storedBoards) {
-      setBoards(storedBoards);
-    }
+    const storedBoards =
+      JSON.parse(window.localStorage.getItem("boards")) || [];
+    setBoards(storedBoards);
   }, []);
 
   const handleNameChange = (e) => {
@@ -26,11 +25,6 @@ function Create() {
         id: Date.now(),
         name,
         description,
-        // kanbans: {
-        //   todo: [],
-        //   in_progress: [],
-        //   completed: [],
-        // },
         kanbans: [
           {
             name: "todo",
@@ -46,7 +40,7 @@ function Create() {
           },
         ],
       };
-      let boards = JSON.parse(window.localStorage.getItem("boards")) || [];
+
       const updatedBoards = [...boards, newBoard];
       setBoards(updatedBoards);
       window.localStorage.setItem("boards", JSON.stringify(updatedBoards));
@@ -54,6 +48,7 @@ function Create() {
       setDescription("");
     }
   };
+
   const handleDeleteBoard = (id) => {
     const updatedBoards = boards.filter((board) => board.id !== id);
     setBoards(updatedBoards);

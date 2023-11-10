@@ -1,15 +1,15 @@
-// components/Dropdown.js
-
 import React, { useState, useEffect } from "react";
+
 const Dropdown = ({ options, onSelect, id, setBoardData, boards }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(options[0] || null);
-  console.log(options[0]);
+
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
+
   useEffect(() => {
-    if (options) {
+    if (options && options.length > 0) {
       setSelectedOption(options[0]);
     }
   }, [options]);
@@ -18,13 +18,10 @@ const Dropdown = ({ options, onSelect, id, setBoardData, boards }) => {
     setSelectedOption(option);
     onSelect(option);
     setIsOpen(false);
-    //console.log("o");
-    for (let i = 0; i < boards.length; i++) {
-      // console.log(boards[i], option.id);
-      if (option.id == boards[i].id) {
-        //console.log(option, boards[i]);
-        setBoardData(boards[i]);
-      }
+
+    const selectedBoard = boards.find((board) => board.id === option.id);
+    if (selectedBoard) {
+      setBoardData(selectedBoard);
     }
   };
 

@@ -30,15 +30,38 @@ function createGuidId() {
 
 export default function Home() {
   const [ready, setReady] = useState(false);
-  const [boardData, setBoardData] = useState(BoardData);
+  const [boardData, setBoardData] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState(0);
   const [boards, setBoards] = useState([]);
 
   useEffect(() => {
     const storedBoards = JSON.parse(window.localStorage.getItem("boards"));
+    console.log(storedBoards);
     if (storedBoards) {
       setBoards(storedBoards);
+      setBoardData(storedBoards[0]);
+    } else {
+      setBoards([]);
+      setBoardData({
+        id: Date.now(),
+        name: "Initial Card",
+        description: "",
+        kanbans: [
+          {
+            name: "todo",
+            items: [],
+          },
+          {
+            name: "in_progress",
+            items: [],
+          },
+          {
+            name: "completed",
+            items: [],
+          },
+        ],
+      });
     }
   }, []);
 
@@ -52,17 +75,27 @@ export default function Home() {
     if (!re.destination) return;
     let newBoardData = boardData;
     var dragItem =
-      newBoardData[parseInt(re.source.droppableId)].items[re.source.index];
-    newBoardData[parseInt(re.source.droppableId)].items.splice(
+      newBoardData.kanbans[parseInt(re.source.droppableId)].items[
+        re.source.index
+      ];
+    newBoardData.kanbans[parseInt(re.source.droppableId)].items.splice(
       re.source.index,
       1
     );
-    newBoardData[parseInt(re.destination.droppableId)].items.splice(
+    newBoardData.kanbans[parseInt(re.destination.droppableId)].items.splice(
       re.destination.index,
       0,
       dragItem
     );
     setBoardData(newBoardData);
+    let tempData = boards;
+    for (let i = 0; i < tempData.length; i++) {
+      if (tempData[i].id == newBoardData.id) {
+        tempData[i] = newBoardData;
+      }
+    }
+    window.localStorage.setItem("boards", JSON.stringify(tempData));
+    setBoards(tempData);
   };
 
   const openModal = (boardId) => {
@@ -80,16 +113,20 @@ export default function Home() {
       name: name,
       description: description,
       dueDate: dueDate,
-      priority: 0,
-      chat: 0,
-      attachment: 0,
-      assignees: [],
     };
 
-    let newBoardData = [...boardData];
-    newBoardData[selectedBoard].items.push(item);
+    let newBoardData = boardData;
+    newBoardData.kanbans[selectedBoard].items.push(item);
+    console.log(newBoardData);
     setBoardData(newBoardData);
-
+    let tempData = boards;
+    for (let i = 0; i < tempData.length; i++) {
+      if (tempData[i].id == newBoardData.id) {
+        tempData[i] = newBoardData;
+      }
+    }
+    window.localStorage.setItem("boards", JSON.stringify(tempData));
+    setBoards(tempData);
     closeModal(); // Close the modal after adding data
   };
 
@@ -103,7 +140,12 @@ export default function Home() {
         <div className="flex flex-initial justify-between">
           <Dropdown
             options={boards}
-            onSelect={(option) => console.log("Selected option:", option)}
+            onSelect={(option) =>
+              console.log("Selected option:", option, boardData)
+            }
+            id={boardData?.id}
+            setBoardData={setBoardData}
+            boards={boards}
           />
         </div>
 
@@ -111,7 +153,7 @@ export default function Home() {
         {ready && (
           <DragDropContext onDragEnd={onDragEnd}>
             <div className="grid grid-cols-4 gap-5 my-5">
-              {boardData.map((board, bIndex) => {
+              {boardData.kanbans.map((board, bIndex) => {
                 return (
                   <div key={board.name}>
                     <Droppable droppableId={bIndex.toString()}>

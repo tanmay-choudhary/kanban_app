@@ -26,12 +26,27 @@ function Create() {
         id: Date.now(),
         name,
         description,
-        kanbans: {
-          todo: [],
-          in_progress: [],
-          completed: [],
-        },
+        // kanbans: {
+        //   todo: [],
+        //   in_progress: [],
+        //   completed: [],
+        // },
+        kanbans: [
+          {
+            name: "todo",
+            items: [],
+          },
+          {
+            name: "in_progress",
+            items: [],
+          },
+          {
+            name: "completed",
+            items: [],
+          },
+        ],
       };
+      let boards = JSON.parse(window.localStorage.getItem("boards")) || [];
       const updatedBoards = [...boards, newBoard];
       setBoards(updatedBoards);
       window.localStorage.setItem("boards", JSON.stringify(updatedBoards));

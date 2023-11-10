@@ -13,12 +13,9 @@ import { useEffect, useState } from "react";
 import Dropdown from "@/components/Dropdown";
 import Button from "@/components/Button";
 import TaskModal from "@/components/TaskModal";
+import CreateModal from "@/components/CreateModal"; // Import the CreateModal component
 
-const options = [
-  { value: "option1", label: "Option 1" },
-  { value: "option2", label: "Option 2" },
-  { value: "option3", label: "Option 3" },
-];
+// ... (your other imports)
 
 function createGuidId() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -32,6 +29,7 @@ export default function Home() {
   const [ready, setReady] = useState(false);
   const [boardData, setBoardData] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showCreateModal, setCreateShowModal] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState(0);
   const [boards, setBoards] = useState([]);
 
@@ -106,7 +104,9 @@ export default function Home() {
   const closeModal = () => {
     setShowModal(false);
   };
-
+  const closeCreateModal = () => {
+    setCreateShowModal(false);
+  };
   const onAddClick = (name, description, dueDate) => {
     const item = {
       id: createGuidId(),
@@ -130,12 +130,17 @@ export default function Home() {
     closeModal(); // Close the modal after adding data
   };
 
+  const openCreateModal = () => {
+    console.log("gresg", showCreateModal);
+    setCreateShowModal(true);
+  };
+
   return (
     <Layout>
       <div className="p-10 flex flex-col h-screen">
         {/* Board header */}
         <div className="flex flex-initial justify-between">
-          <Button name="Create Board" url="/create-board" />
+          <Button name="Create Board" onClick={openCreateModal} />
         </div>
         <div className="flex flex-initial justify-between">
           <Dropdown
@@ -214,6 +219,9 @@ export default function Home() {
           onClose={closeModal}
           onAddClick={onAddClick}
         />
+
+        {/* Create Board Modal */}
+        <CreateModal isOpen={showCreateModal} onClose={closeCreateModal} />
       </div>
     </Layout>
   );

@@ -30,17 +30,19 @@ export default function Home() {
   const [showCreateModal, setCreateShowModal] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState(0);
   const [boards, setBoards] = useState([]);
-  const [editingTask, setEditingTask] = useState(null);
+  const [isData, setIsData] = useState(true);
   const [editedTask, setEditedTask] = useState(null);
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [showEditTaskModal, setShowEditTaskModal] = useState(false);
+
   const handleEditTask = (taskId) => {
-    // Find the task in the current boardData
     const taskToEdit = boardData.kanbans
       .flatMap((kanban) => kanban.items)
       .find((item) => item.id === taskId);
 
     if (taskToEdit) {
-      // Set the task details to state for editing
-      setEditingTask(taskToEdit);
+      setEditedTask(taskToEdit);
+      setShowEditTaskModal(true); // Open the edit task modal
     }
   };
 
@@ -63,7 +65,7 @@ export default function Home() {
     window.localStorage.setItem("boards", JSON.stringify(boards));
 
     // Reset editing state
-    setEditingTask(null);
+    setEditedTask(null);
   };
   const onBoardUpdate = (updatedBoards) => {
     setBoards(updatedBoards);
@@ -86,6 +88,11 @@ export default function Home() {
           ],
         }
       );
+      if (storedBoards[0]) {
+        setIsData(true);
+      } else {
+        setIsData(false);
+      }
     } catch (error) {
       console.error("Error parsing stored boards:", error);
     }
@@ -96,6 +103,16 @@ export default function Home() {
       setReady(true);
     }
   }, []);
+
+  useEffect(() => {
+    const storedBoards =
+      JSON.parse(window.localStorage.getItem("boards")) || [];
+    if (storedBoards[0]) {
+      setIsData(true);
+    } else {
+      setIsData(false);
+    }
+  }, [boards]);
 
   const onDragEnd = ({ source, destination }) => {
     if (!destination) return;
@@ -126,6 +143,9 @@ export default function Home() {
 
   const closeModal = () => {
     setShowModal(false);
+  };
+  const closeEditModel = () => {
+    setShowEditTaskModal(false);
   };
 
   const closeCreateModal = () => {
@@ -184,85 +204,98 @@ export default function Home() {
         <div className="flex flex-initial justify-between">
           <Button name="Create Board" onClick={openCreateModal} />
         </div>
-        <div className="flex flex-initial justify-between">
-          <Dropdown
-            options={boards}
-            onSelect={(option) =>
-              console.log("Selected option:", option, boardData)
-            }
-            id={boardData?.id}
-            setBoardData={setBoardData}
-            boards={boards}
-          />
-        </div>
 
-        {ready && (
-          <DragDropContext onDragEnd={onDragEnd}>
-            <div className="grid grid-cols-4 gap-5 my-5">
-              {boardData.kanbans.map((board, bIndex) => (
-                <div key={board.name}>
-                  <Droppable droppableId={bIndex.toString()}>
-                    {(provided, snapshot) => (
-                      <div {...provided.droppableProps} ref={provided.innerRef}>
+        {isData && ready && (
+          <>
+            <div className="flex flex-initial justify-between">
+              <Dropdown
+                options={boards}
+                onSelect={(option) =>
+                  console.log("Selected option:", option, boardData)
+                }
+                id={boardData?.id}
+                setBoardData={setBoardData}
+                boards={boards}
+              />
+            </div>
+            <DragDropContext onDragEnd={onDragEnd}>
+              <div className="grid grid-cols-4 gap-5 my-5">
+                {boardData.kanbans.map((board, bIndex) => (
+                  <div key={board.name}>
+                    <Droppable droppableId={bIndex.toString()}>
+                      {(provided, snapshot) => (
                         <div
-                          className={`bg-gray-100 rounded-md shadow-md
+                          {...provided.droppableProps}
+                          ref={provided.innerRef}
+                        >
+                          <div
+                            className={`bg-gray-100 rounded-md shadow-md
                             flex flex-col relative overflow-hidden
                             ${snapshot.isDraggingOver && "bg-green-100"}`}
-                        >
-                          <h4 className="p-3 flex justify-between items-center mb-2">
-                            <span className="text-2xl text-gray-600">
-                              {board.name}
-                            </span>
-                            <DotsVerticalIcon className="w-5 h-5 text-gray-500" />
-                          </h4>
-
-                          <div
-                            className="overflow-y-auto overflow-x-hidden h-auto"
-                            style={{ maxHeight: "calc(100vh - 290px)" }}
                           >
-                            {board.items.length > 0 &&
-                              board.items.map((item, iIndex) => (
-                                <CardItem
-                                  key={item.id}
-                                  data={item}
-                                  index={iIndex}
-                                  onEdit={handleEditTask}
-                                  onDelete={handleDeleteTask}
-                                  className="m-3"
-                                />
-                              ))}
-                            {provided.placeholder}
+                            <h4 className="p-3 flex justify-between items-center mb-2">
+                              <span className="text-2xl text-gray-600">
+                                {board.name}
+                              </span>
+                              <DotsVerticalIcon className="w-5 h-5 text-gray-500" />
+                            </h4>
+
+                            <div
+                              className="overflow-y-auto overflow-x-hidden h-auto"
+                              style={{ maxHeight: "calc(100vh - 290px)" }}
+                            >
+                              {board.items.length > 0 &&
+                                board.items.map((item, iIndex) => (
+                                  <CardItem
+                                    key={item.id}
+                                    data={item}
+                                    index={iIndex}
+                                    onEdit={handleEditTask}
+                                    onDelete={handleDeleteTask}
+                                    className="m-3"
+                                  />
+                                ))}
+                              {provided.placeholder}
+                            </div>
+
+                            <button
+                              className="flex justify-center items-center my-3 space-x-2 text-lg"
+                              onClick={() => openModal(bIndex)}
+                            >
+                              <span>Add task</span>
+                              <PlusCircleIcon className="w-5 h-5 text-gray-500" />
+                            </button>
                           </div>
-
-                          <button
-                            className="flex justify-center items-center my-3 space-x-2 text-lg"
-                            onClick={() => openModal(bIndex)}
-                          >
-                            <span>Add task</span>
-                            <PlusCircleIcon className="w-5 h-5 text-gray-500" />
-                          </button>
                         </div>
-                      </div>
-                    )}
-                  </Droppable>
-                </div>
-              ))}
-            </div>
-          </DragDropContext>
+                      )}
+                    </Droppable>
+                  </div>
+                ))}
+              </div>
+            </DragDropContext>
+          </>
+        )}
+        {!isData && (
+          <img src="/nodata.jpg" alt="company" width="800" height="200" />
+        )}
+        {showModal && (
+          <TaskModal
+            isOpen={showModal}
+            onClose={() => closeModal()}
+            onSaveEdit={handleSaveEdit}
+            onAddClick={onAddClick}
+          />
+        )}
+        {showEditTaskModal && (
+          <TaskModal
+            isOpen={showEditTaskModal}
+            onClose={() => closeEditModel()}
+            onSaveEdit={handleSaveEdit}
+            onAddClick={onAddClick}
+            editedTask={editedTask}
+          />
         )}
 
-        <TaskModal
-          isOpen={showModal}
-          onClose={closeModal}
-          onAddClick={onAddClick}
-        />
-        <TaskModal
-          isOpen={showModal}
-          onClose={closeModal}
-          onSaveEdit={handleSaveEdit}
-          onAddClick={onAddClick}
-          editedTask={editedTask}
-        />
         <CreateModal
           isOpen={showCreateModal}
           onClose={closeCreateModal}

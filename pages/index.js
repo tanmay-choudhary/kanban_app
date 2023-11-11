@@ -30,7 +30,10 @@ export default function Home() {
   const [showCreateModal, setCreateShowModal] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState(0);
   const [boards, setBoards] = useState([]);
-
+  const onBoardUpdate = (updatedBoards) => {
+    setBoards(updatedBoards);
+    window.localStorage.setItem("boards", JSON.stringify(updatedBoards));
+  };
   useEffect(() => {
     try {
       const storedBoards =
@@ -195,7 +198,11 @@ export default function Home() {
           onClose={closeModal}
           onAddClick={onAddClick}
         />
-        <CreateModal isOpen={showCreateModal} onClose={closeCreateModal} />
+        <CreateModal
+          isOpen={showCreateModal}
+          onClose={closeCreateModal}
+          onBoardUpdate={onBoardUpdate}
+        />
       </div>
     </Layout>
   );

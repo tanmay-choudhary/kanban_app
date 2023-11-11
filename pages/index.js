@@ -30,6 +30,41 @@ export default function Home() {
   const [showCreateModal, setCreateShowModal] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState(0);
   const [boards, setBoards] = useState([]);
+  const [editingTask, setEditingTask] = useState(null);
+  const [editedTask, setEditedTask] = useState(null);
+  const handleEditTask = (taskId) => {
+    // Find the task in the current boardData
+    const taskToEdit = boardData.kanbans
+      .flatMap((kanban) => kanban.items)
+      .find((item) => item.id === taskId);
+
+    if (taskToEdit) {
+      // Set the task details to state for editing
+      setEditingTask(taskToEdit);
+    }
+  };
+
+  const handleSaveEdit = (editedTask) => {
+    // Update the task in the boardData
+    const updatedBoardData = { ...boardData };
+
+    for (let i = 0; i < updatedBoardData.kanbans.length; i++) {
+      const kanban = updatedBoardData.kanbans[i];
+      const index = kanban.items.findIndex((item) => item.id === editedTask.id);
+
+      if (index !== -1) {
+        kanban.items[index] = editedTask;
+        break;
+      }
+    }
+
+    // Update state and local storage
+    setBoardData(updatedBoardData);
+    window.localStorage.setItem("boards", JSON.stringify(boards));
+
+    // Reset editing state
+    setEditingTask(null);
+  };
   const onBoardUpdate = (updatedBoards) => {
     setBoards(updatedBoards);
     window.localStorage.setItem("boards", JSON.stringify(updatedBoards));
@@ -122,6 +157,27 @@ export default function Home() {
     setCreateShowModal(true);
   };
 
+  const handleDeleteTask = (taskId) => {
+    // Confirm deletion and then update the state and local storage
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this task?"
+    );
+
+    if (confirmDelete) {
+      const updatedBoardData = { ...boardData };
+
+      // Iterate through kanbans to find and remove the task
+      for (let i = 0; i < updatedBoardData.kanbans.length; i++) {
+        updatedBoardData.kanbans[i].items = updatedBoardData.kanbans[
+          i
+        ].items.filter((item) => item.id !== taskId);
+      }
+
+      // Update state and local storage
+      setBoardData(updatedBoardData);
+      window.localStorage.setItem("boards", JSON.stringify(boards));
+    }
+  };
   return (
     <Layout>
       <div className="p-10 flex flex-col h-screen">
@@ -170,6 +226,8 @@ export default function Home() {
                                   key={item.id}
                                   data={item}
                                   index={iIndex}
+                                  onEdit={handleEditTask}
+                                  onDelete={handleDeleteTask}
                                   className="m-3"
                                 />
                               ))}
@@ -197,6 +255,13 @@ export default function Home() {
           isOpen={showModal}
           onClose={closeModal}
           onAddClick={onAddClick}
+        />
+        <TaskModal
+          isOpen={showModal}
+          onClose={closeModal}
+          onSaveEdit={handleSaveEdit}
+          onAddClick={onAddClick}
+          editedTask={editedTask}
         />
         <CreateModal
           isOpen={showCreateModal}

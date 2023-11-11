@@ -1,13 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 
-const TaskModal = ({ isOpen, onClose, onAddClick }) => {
+const TaskModal = ({ isOpen, onClose, onSaveEdit, onAddClick, editedTask }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
 
+  useEffect(() => {
+    // Populate modal fields if an existing task is being edited
+    if (editedTask) {
+      setName(editedTask.name || "");
+      setDescription(editedTask.description || "");
+      setDueDate(editedTask.dueDate || "");
+    } else {
+      // Reset fields if no task is being edited (for adding)
+      setName("");
+      setDescription("");
+      setDueDate("");
+    }
+  }, [editedTask]);
+
   const handleAddClick = () => {
     onAddClick(name, description, dueDate);
+    onClose();
+  };
+
+  const handleSaveEdit = () => {
+    onSaveEdit({ ...editedTask, name, description, dueDate });
     onClose();
   };
 
@@ -15,7 +34,7 @@ const TaskModal = ({ isOpen, onClose, onAddClick }) => {
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      contentLabel="Add Task Modal"
+      contentLabel="Task Modal"
       style={{
         overlay: {
           zIndex: 1000,
@@ -26,7 +45,9 @@ const TaskModal = ({ isOpen, onClose, onAddClick }) => {
       }}
     >
       <div className="p-4">
-        <h2 className="text-2xl font-bold mb-4">Add Task</h2>
+        <h2 className="text-2xl font-bold mb-4">
+          {editedTask ? "Edit Task" : "Add Task"}
+        </h2>
         <div className="mb-4">
           <label className="block text-sm font-semibold mb-2">Name:</label>
           <input
@@ -51,18 +72,27 @@ const TaskModal = ({ isOpen, onClose, onAddClick }) => {
             Due Date (optional):
           </label>
           <input
-            type="date" // Change the input type to "date"
+            type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
             className="w-full p-2 border rounded"
           />
         </div>
-        <button
-          onClick={handleAddClick}
-          className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-        >
-          Add
-        </button>
+        {editedTask ? (
+          <button
+            onClick={handleSaveEdit}
+            className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+          >
+            Save
+          </button>
+        ) : (
+          <button
+            onClick={handleAddClick}
+            className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+          >
+            Add
+          </button>
+        )}
         <button
           onClick={onClose}
           className="bg-gray-500 text-white px-4 py-2 rounded"

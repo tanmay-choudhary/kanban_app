@@ -1,5 +1,5 @@
 import axios from "axios";
-const apiUrl = "http://localhost:3080";
+const apiUrl = "http://localhost:8080";
 
 const makeApiCall = (method, url, payload = null, headers = {}) => {
   const obj = {

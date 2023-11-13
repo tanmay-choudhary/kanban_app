@@ -68,21 +68,41 @@ export default function Home() {
     // Reset editing state
     setEditedTask(null);
   };
-  const onBoardUpdate = (updatedBoards) => {
-    setBoards(updatedBoards);
-    window.localStorage.setItem("boards", JSON.stringify(updatedBoards));
+  const onBoardUpdate = (data, type) => {
+    console.log(type);
+    async function helper(req, url, payload) {
+      await makeApiCalls(req, url, payload);
+      const storedBoards = (await makeApiCalls("GET", "/kanban"))?.data || [];
+      console.log(storedBoards);
+      setBoards(storedBoards);
+    }
+    if (type == "add") {
+      helper("POST", "/kanban", data.board);
+    } else if (type == "delete") {
+      helper("DELETE", `/kanban/${data.id}`, data.board);
+    } else if (type == "update") {
+      helper("PATCH", `/kanban/${data.id}`, data.board);
+    }
   };
   useEffect(() => {
     try {
-      const storedBoards =
-        JSON.parse(window.localStorage.getItem("boards")) || [];
-      setBoards(storedBoards);
-      setBoardData(storedBoards[0]);
-      if (storedBoards[0]) {
-        setIsData(true);
-      } else {
-        setIsData(false);
+      async function helper() {
+        try {
+          const storedBoards =
+            (await makeApiCalls("GET", "/kanban"))?.data || [];
+          console.log(storedBoards);
+          setBoards(storedBoards);
+          setBoardData(storedBoards[0]);
+          if (storedBoards[0]) {
+            setIsData(true);
+          } else {
+            setIsData(false);
+          }
+        } catch (e) {
+          console.log(e);
+        }
       }
+      helper();
     } catch (error) {
       console.error("Error parsing stored boards:", error);
     }
@@ -95,13 +115,15 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const storedBoards =
-      JSON.parse(window.localStorage.getItem("boards")) || [];
-    if (storedBoards[0]) {
-      setIsData(true);
-    } else {
-      setIsData(false);
+    async function helper() {
+      const storedBoards = (await makeApiCalls("GET", "/kanban"))?.data || [];
+      if (storedBoards[0]) {
+        setIsData(true);
+      } else {
+        setIsData(false);
+      }
     }
+    helper();
   }, [boards]);
 
   const onDragEnd = ({ source, destination }) => {
@@ -289,6 +311,8 @@ export default function Home() {
           isOpen={showCreateModal}
           onClose={closeCreateModal}
           onBoardUpdate={onBoardUpdate}
+          boards={boards}
+          setBoards={setBoards}
         />
       </div>
     </Layout>

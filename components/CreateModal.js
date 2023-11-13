@@ -44,6 +44,8 @@ function Create({ isOpen, onClose, onBoardUpdate, boards, setBoards }) {
     onClose();
     setEditingBoardId(null);
     setBoardToDelete(null);
+    setName("");
+    setDescription("");
   };
 
   const handleAddBoard = () => {

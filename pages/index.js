@@ -1,19 +1,10 @@
-import Head from "next/head";
 import Layout from "../components/Layout";
-import {
-  ChevronDownIcon,
-  PlusIcon,
-  DotsVerticalIcon,
-  PlusCircleIcon,
-} from "@heroicons/react/outline";
-import CardItem from "../components/CardItem";
-import BoardData from "../data/board-data.json";
-import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { useEffect, useState } from "react";
 import Dropdown from "@/components/Dropdown";
 import Button from "@/components/Button";
-import TaskModal from "@/components/TaskModal";
-import CreateModal from "@/components/CreateModal";
+import DragDrop from "@/components/DragDrop";
+import Modals from "@/components/Modals";
+import Loader from "@/components/Loader";
 import makeApiCalls from "@/utils/makeApiCalls";
 
 function createGuidId() {
@@ -35,6 +26,8 @@ export default function Home() {
   const [editedTask, setEditedTask] = useState(null);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [showEditTaskModal, setShowEditTaskModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  ///////////////////////////////////////////////////////////////////////////////////
 
   const handleEditTask = (taskId) => {
     const taskToEdit = boardData.kanbans
@@ -73,9 +66,6 @@ export default function Home() {
     }
     helper();
     setBoardData(updatedBoardData);
-    //window.localStorage.setItem("boards", JSON.stringify(boards));
-
-    // Reset editing state
     setEditedTask(null);
   };
   const onBoardUpdate = (data, type) => {
@@ -85,19 +75,29 @@ export default function Home() {
       const storedBoards = (await makeApiCalls("GET", "/kanban"))?.data || [];
       //console.log(storedBoards);
       setBoards(storedBoards);
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     }
     if (type == "add") {
+      setLoading(true);
       helper("POST", "/kanban", data.board);
     } else if (type == "delete") {
+      setLoading(true);
       helper("DELETE", `/kanban/${data.id}`, data.board);
     } else if (type == "update") {
+      setLoading(true);
       helper("PATCH", `/kanban/${data.id}`, data.board);
     }
   };
+
+  /////////////////////////////////////////////////////////////////////////////////////
+
   useEffect(() => {
     try {
       async function helper() {
         try {
+          setLoading(true);
           const storedBoards =
             (await makeApiCalls("GET", "/kanban"))?.data || [];
           console.log(storedBoards);
@@ -108,6 +108,9 @@ export default function Home() {
           } else {
             setIsData(false);
           }
+          setTimeout(() => {
+            setLoading(false);
+          }, 1000);
         } catch (e) {
           console.log(e);
         }
@@ -127,6 +130,7 @@ export default function Home() {
   useEffect(() => {
     console.log(boardData, boards);
     async function helper() {
+      setLoading(true);
       const storedBoards = (await makeApiCalls("GET", "/kanban"))?.data || [];
       if (storedBoards[0]) {
         setBoardData(storedBoards[0]);
@@ -134,10 +138,14 @@ export default function Home() {
       } else {
         setIsData(false);
       }
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     }
     helper();
   }, [boards]);
 
+  /////////////////////////////////////////////////////////////////////////
   const onDragEnd = ({ source, destination }) => {
     if (!destination) return;
 
@@ -250,116 +258,66 @@ export default function Home() {
       //.setItem("boards", JSON.stringify(boards));
     }
   };
+  /////////////////////////////////////////////////////////////////////////////
+
   return (
-    <Layout>
-      <div className="p-10 flex flex-col h-screen">
-        <div className="flex flex-initial justify-between">
-          {isData && <Button name="Add Board" onClick={openCreateModal} />}
-          {!isData && <Button name="Create Board" onClick={openCreateModal} />}
-        </div>
-
-        {isData && ready && (
-          <>
+    <>
+      {loading ? (
+        <Loader />
+      ) : (
+        <Layout>
+          <div className="p-10 flex flex-col h-screen">
             <div className="flex flex-initial justify-between">
-              <Dropdown
-                options={boards}
-                onSelect={(option) =>
-                  console.log("Selected option:", option, boardData)
-                }
-                id={boardData?.id}
-                setBoardData={setBoardData}
-                boards={boards}
-              />
+              {!isData && (
+                <Button name="Create Board" onClick={openCreateModal} />
+              )}
             </div>
-            <DragDropContext onDragEnd={onDragEnd}>
-              <div className="grid grid-cols-4 gap-5 my-5">
-                {boardData?.kanbans?.map((board, bIndex) => (
-                  <div key={board.name}>
-                    <Droppable droppableId={bIndex.toString()}>
-                      {(provided, snapshot) => (
-                        <div
-                          {...provided.droppableProps}
-                          ref={provided.innerRef}
-                        >
-                          <div
-                            className={`bg-gray-100 rounded-md shadow-md
-                            flex flex-col relative overflow-hidden
-                            ${snapshot.isDraggingOver && "bg-green-100"}`}
-                          >
-                            <h4 className="p-3 flex justify-between items-center mb-2">
-                              <span className="text-2xl text-gray-600">
-                                {board.name === "todo"
-                                  ? "Todo"
-                                  : board.name === "in_progress"
-                                  ? "In Progress"
-                                  : "Completed"}
-                              </span>
-                            </h4>
 
-                            <div
-                              className="overflow-y-auto overflow-x-hidden h-auto"
-                              style={{ maxHeight: "calc(100vh - 290px)" }}
-                            >
-                              {board.items.length > 0 &&
-                                board.items.map((item, iIndex) => (
-                                  <CardItem
-                                    key={item.id}
-                                    data={item}
-                                    index={iIndex}
-                                    onEdit={handleEditTask}
-                                    onDelete={handleDeleteTask}
-                                    className="m-3"
-                                  />
-                                ))}
-                              {provided.placeholder}
-                            </div>
-
-                            <button
-                              className="flex justify-center items-center my-3 space-x-2 text-lg"
-                              onClick={() => openModal(bIndex)}
-                            >
-                              <span>Add task</span>
-                              <PlusCircleIcon className="w-5 h-5 text-gray-500" />
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </Droppable>
-                  </div>
-                ))}
-              </div>
-            </DragDropContext>
-          </>
-        )}
-        {!isData && (
-          <img src="/nodata.jpg" alt="company" width="800" height="200" />
-        )}
-        {showModal && (
-          <TaskModal
-            isOpen={showModal}
-            onClose={() => closeModal()}
-            onSaveEdit={handleSaveEdit}
-            onAddClick={onAddClick}
-          />
-        )}
-        {showEditTaskModal && (
-          <TaskModal
-            isOpen={showEditTaskModal}
-            onClose={() => closeEditModel()}
-            onSaveEdit={handleSaveEdit}
-            onAddClick={onAddClick}
-            editedTask={editedTask}
-          />
-        )}
-
-        <CreateModal
-          isOpen={showCreateModal}
-          onClose={closeCreateModal}
-          onBoardUpdate={onBoardUpdate}
-          boards={boards}
-          setBoards={setBoards}
-        />
-      </div>
-    </Layout>
+            {isData && ready && (
+              <>
+                <div className="flex flex-initial justify-between">
+                  <Button name="Add Board" onClick={openCreateModal} />
+                </div>
+                <div className="flex flex-initial justify-between">
+                  <Dropdown
+                    options={boards}
+                    onSelect={(option) =>
+                      console.log("Selected option:", option, boardData)
+                    }
+                    id={boardData?.id}
+                    setBoardData={setBoardData}
+                    boards={boards}
+                  />
+                </div>
+                <DragDrop
+                  onDragEnd={onDragEnd}
+                  boardData={boardData}
+                  handleEditTask={handleEditTask}
+                  handleDeleteTask={handleDeleteTask}
+                  openModal={openModal}
+                />
+              </>
+            )}
+            {!isData && (
+              <img src="/nodata.jpg" alt="company" width="800" height="200" />
+            )}
+            <Modals
+              showModal={showModal}
+              showEditTaskModal={showEditTaskModal}
+              showCreateModal={showCreateModal}
+              closeCreateModal={closeCreateModal}
+              onBoardUpdate={onBoardUpdate}
+              boards={boards}
+              setBoards={setBoards}
+              handleSaveEdit={handleSaveEdit}
+              onAddClick={onAddClick}
+              closeModal={closeModal}
+              editedTask={editedTask}
+              closeEditModel={closeEditModel}
+            />
+          </div>
+        </Layout>
+      )}
+    </>
   );
 }

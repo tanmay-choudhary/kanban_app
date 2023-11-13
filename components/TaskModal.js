@@ -5,13 +5,15 @@ const TaskModal = ({ isOpen, onClose, onSaveEdit, onAddClick, editedTask }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
-
+  const currentDate = new Date().toISOString().split("T")[0];
   useEffect(() => {
     // Populate modal fields if an existing task is being edited
     if (editedTask) {
       setName(editedTask.name || "");
       setDescription(editedTask.description || "");
-      setDueDate(editedTask.dueDate || "");
+      setDueDate(
+        new Date(editedTask?.dueDate).toISOString().split("T")[0] || ""
+      );
     } else {
       // Reset fields if no task is being edited (for adding)
       setName("");
@@ -68,12 +70,11 @@ const TaskModal = ({ isOpen, onClose, onSaveEdit, onAddClick, editedTask }) => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-semibold mb-2">
-            Due Date (optional):
-          </label>
+          <label className="block text-sm font-semibold mb-2">Due Date:</label>
           <input
             type="date"
             value={dueDate}
+            min={currentDate}
             onChange={(e) => setDueDate(e.target.value)}
             className="w-full p-2 border rounded"
           />

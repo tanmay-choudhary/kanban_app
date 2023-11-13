@@ -47,7 +47,10 @@ function CardItem({ data, index, onEdit, onDelete }) {
               </span>
               <span className="flex space-x-1 items-center">
                 <PaperClipIcon className="w-4 h-4 text-gray-500" />
-                <span>{data.dueDate}</span>
+                <span>
+                  {new Date(data?.dueDate).toISOString().split("T")[0] ||
+                    data.dueDate}
+                </span>
               </span>
             </div>
             {/*  <div className="flex justify-end">

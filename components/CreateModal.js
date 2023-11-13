@@ -63,6 +63,8 @@ function Create({ isOpen, onClose, onBoardUpdate, boards, setBoards }) {
       setName("");
       setDescription("");
       updateBoards({ board: newBoard }, "add");
+    } else {
+      window.alert("Both Name and Description are necessary.");
     }
   };
 

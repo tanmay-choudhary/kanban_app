@@ -125,9 +125,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    console.log(boardData, boards);
     async function helper() {
       const storedBoards = (await makeApiCalls("GET", "/kanban"))?.data || [];
       if (storedBoards[0]) {
+        setBoardData(storedBoards[0]);
         setIsData(true);
       } else {
         setIsData(false);
@@ -277,7 +279,11 @@ export default function Home() {
                           >
                             <h4 className="p-3 flex justify-between items-center mb-2">
                               <span className="text-2xl text-gray-600">
-                                {board.name}
+                                {board.name === "todo"
+                                  ? "Todo"
+                                  : board.name === "in_progress"
+                                  ? "In Progress"
+                                  : "Completed"}
                               </span>
                             </h4>
 

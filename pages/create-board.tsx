@@ -1,9 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import makeApiCalls from "@/utils/makeApiCalls";
+
+interface KanbanItem {
+  name: string;
+  items: any[]; // Adjust the type based on your actual item structure
+}
+
+interface Board {
+  id: number;
+  name: string;
+  description: string;
+  kanbans: KanbanItem[];
+}
+
 function Create() {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [boards, setBoards] = useState([]);
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [boards, setBoards] = useState<Board[]>([]);
 
   useEffect(() => {
     async function helper() {
@@ -13,17 +26,17 @@ function Create() {
     helper();
   }, []);
 
-  const handleNameChange = (e) => {
+  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
   };
 
-  const handleDescriptionChange = (e) => {
+  const handleDescriptionChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDescription(e.target.value);
   };
 
   const handleAddBoard = () => {
     if (name && description) {
-      const newBoard = {
+      const newBoard: Board = {
         id: Date.now(),
         name,
         description,
@@ -51,7 +64,7 @@ function Create() {
     }
   };
 
-  const handleDeleteBoard = (id) => {
+  const handleDeleteBoard = (id: number) => {
     const updatedBoards = boards.filter((board) => board.id !== id);
     setBoards(updatedBoards);
     //window.localStorage.setItem("boards", JSON.stringify(updatedBoards));

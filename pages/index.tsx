@@ -17,19 +17,18 @@ function createGuidId() {
 
 export default function Home() {
   const [ready, setReady] = useState(false);
-  const [boardData, setBoardData] = useState([]);
+  const [boardData, setBoardData] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [showCreateModal, setCreateShowModal] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState(0);
-  const [boards, setBoards] = useState([]);
+  const [boards, setBoards] = useState<any[]>([]);
   const [isData, setIsData] = useState(true);
-  const [editedTask, setEditedTask] = useState(null);
+  const [editedTask, setEditedTask] = useState<any | null>(null);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [showEditTaskModal, setShowEditTaskModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  ///////////////////////////////////////////////////////////////////////////////////
 
-  const handleEditTask = (taskId) => {
+  const handleEditTask = (taskId: string) => {
     const taskToEdit = boardData.kanbans
       .flatMap((kanban) => kanban.items)
       .find((item) => item.id === taskId);
@@ -40,7 +39,7 @@ export default function Home() {
     }
   };
 
-  const handleSaveEdit = (editedTask) => {
+  const handleSaveEdit = (editedTask: any) => {
     // Update the task in the boardData
     const updatedBoardData = { ...boardData };
 
@@ -68,30 +67,28 @@ export default function Home() {
     setBoardData(updatedBoardData);
     setEditedTask(null);
   };
-  const onBoardUpdate = (data, type) => {
+
+  const onBoardUpdate = (data: any, type: string) => {
     console.log(type);
-    async function helper(req, url, payload) {
+    async function helper(req: string, url: string, payload: any) {
       await makeApiCalls(req, url, payload);
       const storedBoards = (await makeApiCalls("GET", "/kanban"))?.data || [];
-      //console.log(storedBoards);
       setBoards(storedBoards);
       setTimeout(() => {
         setLoading(false);
       }, 1000);
     }
-    if (type == "add") {
+    if (type === "add") {
       setLoading(true);
       helper("POST", "/kanban", data.board);
-    } else if (type == "delete") {
+    } else if (type === "delete") {
       setLoading(true);
       helper("DELETE", `/kanban/${data.id}`, data.board);
-    } else if (type == "update") {
+    } else if (type === "update") {
       setLoading(true);
       helper("PATCH", `/kanban/${data.id}`, data.board);
     }
   };
-
-  /////////////////////////////////////////////////////////////////////////////////////
 
   useEffect(() => {
     try {
@@ -145,8 +142,7 @@ export default function Home() {
     helper();
   }, [boards]);
 
-  /////////////////////////////////////////////////////////////////////////
-  const onDragEnd = ({ source, destination }) => {
+  const onDragEnd = ({ source, destination }: any) => {
     if (!destination) return;
 
     const { droppableId: sourceId, index: sourceIndex } = source;
@@ -163,8 +159,7 @@ export default function Home() {
     let tempData = boards.map((board) =>
       board._id === newBoardData._id ? newBoardData : board
     );
-    //console.log(newBoardData);
-    //window.localStorage.setItem("boards", JSON.stringify(tempData));
+
     async function helper() {
       const updateKanban =
         (await makeApiCalls(
@@ -174,10 +169,9 @@ export default function Home() {
         )) || [];
     }
     helper();
-    //setBoards(tempData);
   };
 
-  const openModal = (boardId) => {
+  const openModal = (boardId: number) => {
     setSelectedBoard(boardId);
     setShowModal(true);
   };
@@ -193,7 +187,7 @@ export default function Home() {
     setCreateShowModal(false);
   };
 
-  const onAddClick = (name, description, dueDate) => {
+  const onAddClick = (name: string, description: string, dueDate: string) => {
     const item = {
       id: createGuidId(),
       name: name,
@@ -202,14 +196,13 @@ export default function Home() {
     };
 
     let newBoardData = { ...boardData };
-    //console.log(selectedBoard, newBoardData);
     newBoardData.kanbans[selectedBoard].items.push(item);
     setBoardData({ ...newBoardData });
 
     let tempData = boards.map((board) =>
       board._id === newBoardData._id ? newBoardData : board
     );
-    //console.log(newBoardData);
+
     async function helper() {
       const updateKanban =
         (await makeApiCalls(
@@ -219,8 +212,6 @@ export default function Home() {
         )) || [];
     }
     helper();
-    //window.localStorage.setItem("boards", JSON.stringify(tempData));
-    //setBoards(tempData);
     closeModal();
   };
 
@@ -228,8 +219,7 @@ export default function Home() {
     setCreateShowModal(true);
   };
 
-  const handleDeleteTask = (taskId) => {
-    // Confirm deletion and then update the state and local storage
+  const handleDeleteTask = (taskId: string) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this task?"
     );
@@ -237,15 +227,14 @@ export default function Home() {
     if (confirmDelete) {
       const updatedBoardData = { ...boardData };
 
-      // Iterate through kanbans to find and remove the task
       for (let i = 0; i < updatedBoardData.kanbans.length; i++) {
         updatedBoardData.kanbans[i].items = updatedBoardData.kanbans[
           i
         ].items.filter((item) => item.id !== taskId);
       }
 
-      // Update state and local storage
       setBoardData(updatedBoardData);
+
       async function helper() {
         const updateKanban =
           (await makeApiCalls(
@@ -255,10 +244,8 @@ export default function Home() {
           )) || [];
       }
       helper();
-      //.setItem("boards", JSON.stringify(boards));
     }
   };
-  /////////////////////////////////////////////////////////////////////////////
 
   return (
     <>

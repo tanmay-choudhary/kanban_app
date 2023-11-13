@@ -153,7 +153,7 @@ export default function Home() {
     setBoardData({ ...newBoardData });
 
     let tempData = boards.map((board) =>
-      board.id === newBoardData.id ? newBoardData : board
+      board._id === newBoardData._id ? newBoardData : board
     );
     //console.log(newBoardData);
     //window.localStorage.setItem("boards", JSON.stringify(tempData));
@@ -166,7 +166,7 @@ export default function Home() {
         )) || [];
     }
     helper();
-    setBoards(tempData);
+    //setBoards(tempData);
   };
 
   const openModal = (boardId) => {
@@ -199,7 +199,7 @@ export default function Home() {
     setBoardData({ ...newBoardData });
 
     let tempData = boards.map((board) =>
-      board.id === newBoardData.id ? newBoardData : board
+      board._id === newBoardData._id ? newBoardData : board
     );
     //console.log(newBoardData);
     async function helper() {
@@ -212,7 +212,7 @@ export default function Home() {
     }
     helper();
     //window.localStorage.setItem("boards", JSON.stringify(tempData));
-    setBoards(tempData);
+    //setBoards(tempData);
     closeModal();
   };
 
@@ -238,6 +238,15 @@ export default function Home() {
 
       // Update state and local storage
       setBoardData(updatedBoardData);
+      async function helper() {
+        const updateKanban =
+          (await makeApiCalls(
+            "PATCH",
+            `/tasks/${updatedBoardData._id}`,
+            updatedBoardData
+          )) || [];
+      }
+      helper();
       //.setItem("boards", JSON.stringify(boards));
     }
   };

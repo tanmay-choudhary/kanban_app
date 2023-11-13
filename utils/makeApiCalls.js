@@ -1,6 +1,6 @@
 import axios from "axios";
-const apiUrl = "http://localhost:8080";
-
+//const apiUrl = "http://localhost:8080";
+const apiUrl = "https://kanban-backend-sg51.onrender.com";
 const makeApiCall = (method, url, payload = null, headers = {}) => {
   const obj = {
     method,

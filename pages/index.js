@@ -6,6 +6,7 @@ import DragDrop from "@/components/DragDrop";
 import Modals from "@/components/Modals";
 import Loader from "@/components/Loader";
 import makeApiCalls from "@/utils/makeApiCalls";
+import makeApiCallLongPolling from "@/utils/makeApiCallLongPolling";
 
 function createGuidId() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -99,7 +100,7 @@ export default function Home() {
         try {
           setLoading(true);
           const storedBoards =
-            (await makeApiCalls("GET", "/kanban"))?.data || [];
+            (await makeApiCallLongPolling("GET", "/kanban"))?.data || [];
           console.log(storedBoards);
           setBoards(storedBoards);
           setBoardData(storedBoards[0]);
@@ -131,7 +132,8 @@ export default function Home() {
     console.log(boardData, boards);
     async function helper() {
       setLoading(true);
-      const storedBoards = (await makeApiCalls("GET", "/kanban"))?.data || [];
+      const storedBoards =
+        (await makeApiCallLongPolling("GET", "/kanban"))?.data || [];
       if (storedBoards[0]) {
         setBoardData(storedBoards[0]);
         setIsData(true);

@@ -193,29 +193,35 @@ function Create({ isOpen, onClose, onBoardUpdate, boards, setBoards }) {
 
           <div className="mt-4">
             <h2 className="text-xl font-semibold mb-2">Boards:</h2>
-            <ul>
-              {boards?.map((board) => (
-                <li key={board.id} className="mb-2 flex items-center">
-                  <span className="font-semibold mr-2">{board.name}:</span>{" "}
-                  {board.description}
-                  <Button
-                    className="ml-2 bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700"
-                    onClick={() => handleEdit(board._id)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    className="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
-                    onClick={() => {
-                      setBoardToDelete(board._id);
-                      setConfirmDelete(true);
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </li>
-              ))}
-            </ul>
+            {boards.length > 0 ? (
+              <ul>
+                {boards?.map((board) => (
+                  <li key={board.id} className="mb-2 flex items-center">
+                    <span className="font-semibold mr-2">{board.name}:</span>{" "}
+                    {board.description}
+                    <Button
+                      className="ml-2 bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700"
+                      onClick={() => handleEdit(board._id)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      className="ml-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
+                      onClick={() => {
+                        setBoardToDelete(board._id);
+                        setConfirmDelete(true);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <>
+                <h3>No Boards Added Yet</h3>
+              </>
+            )}
           </div>
         </>
       </Modal>

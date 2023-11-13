@@ -19,7 +19,7 @@ const Dropdown = ({ options, onSelect, id, setBoardData, boards }) => {
     onSelect(option);
     setIsOpen(false);
 
-    const selectedBoard = boards.find((board) => board.id === option.id);
+    const selectedBoard = boards.find((board) => board._id === option._id);
     if (selectedBoard) {
       setBoardData(selectedBoard);
     }

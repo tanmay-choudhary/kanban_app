@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
-
+import makeApiCalls from "@/utils/makeApiCalls";
 function Create() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [boards, setBoards] = useState([]);
 
   useEffect(() => {
-    const storedBoards =
-      JSON.parse(window.localStorage.getItem("boards")) || [];
-    setBoards(storedBoards);
+    async function helper() {
+      const storedBoards = (await makeApiCalls("GET", "/kanban"))?.data || [];
+      setBoards(storedBoards);
+    }
+    helper();
   }, []);
 
   const handleNameChange = (e) => {
@@ -43,7 +45,7 @@ function Create() {
 
       const updatedBoards = [...boards, newBoard];
       setBoards(updatedBoards);
-      window.localStorage.setItem("boards", JSON.stringify(updatedBoards));
+      //window.localStorage.setItem("boards", JSON.stringify(updatedBoards));
       setName("");
       setDescription("");
     }
@@ -52,7 +54,7 @@ function Create() {
   const handleDeleteBoard = (id) => {
     const updatedBoards = boards.filter((board) => board.id !== id);
     setBoards(updatedBoards);
-    window.localStorage.setItem("boards", JSON.stringify(updatedBoards));
+    //window.localStorage.setItem("boards", JSON.stringify(updatedBoards));
   };
 
   return (

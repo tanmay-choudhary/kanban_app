@@ -190,7 +190,7 @@ function Create({ isOpen, onClose, onBoardUpdate, boards, setBoards }) {
           <div className="mt-4">
             <h2 className="text-xl font-semibold mb-2">Boards:</h2>
             <ul>
-              {boards.map((board) => (
+              {boards?.map((board) => (
                 <li key={board.id} className="mb-2 flex items-center">
                   <span className="font-semibold mr-2">{board.name}:</span>{" "}
                   {board.description}

@@ -83,7 +83,7 @@ export default function Home() {
     async function helper(req, url, payload) {
       await makeApiCalls(req, url, payload);
       const storedBoards = (await makeApiCalls("GET", "/kanban"))?.data || [];
-      console.log(storedBoards);
+      //console.log(storedBoards);
       setBoards(storedBoards);
     }
     if (type == "add") {
@@ -236,14 +236,15 @@ export default function Home() {
 
       // Update state and local storage
       setBoardData(updatedBoardData);
-      window.localStorage.setItem("boards", JSON.stringify(boards));
+      //.setItem("boards", JSON.stringify(boards));
     }
   };
   return (
     <Layout>
       <div className="p-10 flex flex-col h-screen">
         <div className="flex flex-initial justify-between">
-          <Button name="Create Board" onClick={openCreateModal} />
+          {isData && <Button name="Add Board" onClick={openCreateModal} />}
+          {!isData && <Button name="Create Board" onClick={openCreateModal} />}
         </div>
 
         {isData && ready && (

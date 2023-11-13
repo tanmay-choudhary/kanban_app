@@ -5,9 +5,11 @@ import Image from "next/image";
 function TopBar(props) {
   return (
     <div
-      className="h-16 pl-40 fixed bg-gradient-to-r from-purple-400
-        to-blue-500 w-full flex items-center justify-between pr-5"
-    ></div>
+      className="h-16  fixed bg-gradient-to-r from-purple-400
+        to-blue-500 w-full flex items-center justify-center text-white font-bold text-2xl"
+    >
+      Kanban Application
+    </div>
   );
 }
 

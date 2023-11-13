@@ -267,27 +267,36 @@ export default function Home() {
       ) : (
         <Layout>
           <div className="p-10 flex flex-col h-screen">
-            <div className="flex flex-initial justify-between">
+            <div className="flex  justify-center items-center">
               {!isData && (
-                <Button name="Create Board" onClick={openCreateModal} />
+                <div className="flex flex-col space-y-6">
+                  <Button name="Create Board" onClick={openCreateModal} />
+                  <img
+                    src="/nodata.jpg"
+                    alt="company"
+                    width="400"
+                    height="100"
+                  />
+                </div>
               )}
             </div>
 
             {isData && ready && (
               <>
                 <div className="flex flex-initial justify-between">
-                  <Button name="Add Board" onClick={openCreateModal} />
-                </div>
-                <div className="flex flex-initial justify-between">
-                  <Dropdown
-                    options={boards}
-                    onSelect={(option) =>
-                      console.log("Selected option:", option, boardData)
-                    }
-                    id={boardData?.id}
-                    setBoardData={setBoardData}
-                    boards={boards}
-                  />
+                  <Button name="Add New Board" onClick={openCreateModal} />
+
+                  <div className="flex flex-initial justify-between">
+                    <Dropdown
+                      options={boards}
+                      onSelect={(option) =>
+                        console.log("Selected option:", option, boardData)
+                      }
+                      id={boardData?.id}
+                      setBoardData={setBoardData}
+                      boards={boards}
+                    />
+                  </div>
                 </div>
                 <DragDrop
                   onDragEnd={onDragEnd}
@@ -298,9 +307,7 @@ export default function Home() {
                 />
               </>
             )}
-            {!isData && (
-              <img src="/nodata.jpg" alt="company" width="800" height="200" />
-            )}
+
             <Modals
               showModal={showModal}
               showEditTaskModal={showEditTaskModal}

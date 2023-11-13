@@ -7,6 +7,8 @@ import {
   PaperClipIcon,
   PencilAltIcon,
   TrashIcon,
+  ClockIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/outline";
 import { Draggable } from "react-beautiful-dnd";
 
@@ -38,21 +40,29 @@ function CardItem({ data, index, onEdit, onDelete }) {
               ? "Medium Priority"
               : "High Priority"}
             </label> */}
-          <h5 className="text-md my-3 text-lg leading-6">{data.name}</h5>
-          <div className="flex justify-between">
-            <div className="flex space-x-2 items-center">
-              <span className="flex space-x-1 items-center">
-                <ChatAlt2Icon className="w-4 h-4 text-gray-500" />
-                <span>{data.description}</span>
-              </span>
-              <span className="flex space-x-1 items-center">
-                <PaperClipIcon className="w-4 h-4 text-gray-500" />
-                <span>
-                  {new Date(data?.dueDate).toISOString().split("T")[0] ||
-                    data.dueDate}
+          <div className="flex flex-col my-3">
+            <h5 className="text-md text-lg leading-6 mt-4">{data.name}</h5>
+            <div className="flex flex-wrap justify-between space-y-2 mt-3">
+              <div className="flex space-x-2 items-center">
+                <span className="flex items-start">
+                  <div style={{ width: "1.5rem" }}>
+                    <InformationCircleIcon className="mt-[5px] mr-1 w-4 h-4 text-gray-500" />
+                  </div>
+                  <span className="flex-grow">{data.description}</span>
                 </span>
-              </span>
+              </div>
+
+              <div>
+                <span className="flex space-x-1 items-center">
+                  <ClockIcon className=" w-4 h-4 text-gray-500" />
+                  <span>
+                    {new Date(data?.dueDate).toISOString().split("T")[0] ||
+                      data.dueDate}
+                  </span>
+                </span>
+              </div>
             </div>
+
             {/*  <div className="flex justify-end">
               <button
                 className="text-blue-500 hover:text-blue-700 mr-2"

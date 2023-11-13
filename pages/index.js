@@ -62,8 +62,18 @@ export default function Home() {
     }
 
     // Update state and local storage
+    console.log(updatedBoardData);
+    async function helper() {
+      const updateKanban =
+        (await makeApiCalls(
+          "PATCH",
+          `/tasks/${updatedBoardData._id}`,
+          updatedBoardData
+        )) || [];
+    }
+    helper();
     setBoardData(updatedBoardData);
-    window.localStorage.setItem("boards", JSON.stringify(boards));
+    //window.localStorage.setItem("boards", JSON.stringify(boards));
 
     // Reset editing state
     setEditedTask(null);
@@ -143,8 +153,17 @@ export default function Home() {
     let tempData = boards.map((board) =>
       board.id === newBoardData.id ? newBoardData : board
     );
-
-    window.localStorage.setItem("boards", JSON.stringify(tempData));
+    //console.log(newBoardData);
+    //window.localStorage.setItem("boards", JSON.stringify(tempData));
+    async function helper() {
+      const updateKanban =
+        (await makeApiCalls(
+          "PATCH",
+          `/tasks/${newBoardData._id}`,
+          newBoardData
+        )) || [];
+    }
+    helper();
     setBoards(tempData);
   };
 
@@ -173,14 +192,24 @@ export default function Home() {
     };
 
     let newBoardData = { ...boardData };
+    //console.log(selectedBoard, newBoardData);
     newBoardData.kanbans[selectedBoard].items.push(item);
     setBoardData({ ...newBoardData });
 
     let tempData = boards.map((board) =>
       board.id === newBoardData.id ? newBoardData : board
     );
-
-    window.localStorage.setItem("boards", JSON.stringify(tempData));
+    //console.log(newBoardData);
+    async function helper() {
+      const updateKanban =
+        (await makeApiCalls(
+          "PATCH",
+          `/tasks/${newBoardData._id}`,
+          newBoardData
+        )) || [];
+    }
+    helper();
+    //window.localStorage.setItem("boards", JSON.stringify(tempData));
     setBoards(tempData);
     closeModal();
   };

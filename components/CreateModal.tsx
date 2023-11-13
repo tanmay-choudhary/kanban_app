@@ -1,8 +1,40 @@
+import { ReactNode, MouseEvent, ChangeEvent } from "react";
 import { UploadIcon } from "@heroicons/react/outline";
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: ReactNode;
+}
+
+interface ButtonProps {
+  onClick: (event: MouseEvent<HTMLButtonElement>) => void;
+  className: string;
+  children: ReactNode;
+}
+
+interface KanbanItem {
+  name: string;
+  items: any[]; // Adjust the type based on your actual item structure
+}
+
+interface Board {
+  _id: number;
+  name: string;
+  description: string;
+  kanbans: KanbanItem[];
+}
+
+interface CreateProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onBoardUpdate: (data: any, type: string) => void;
+  boards: Board[];
+  setBoards: (boards: Board[]) => void;
+}
 
 // Extracted modal component
-const Modal = ({ isOpen, onClose, children }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }: ModalProps) => {
   return (
     isOpen && (
       <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
@@ -13,7 +45,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 };
 
 // Extracted button component
-const Button = ({ onClick, className, children }) => {
+const Button: React.FC<ButtonProps> = ({ onClick, className, children }: ButtonProps) => {
   return (
     <button className={className} onClick={onClick}>
       {children}
@@ -21,22 +53,21 @@ const Button = ({ onClick, className, children }) => {
   );
 };
 
-function Create({ isOpen, onClose, onBoardUpdate, boards, setBoards }) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  //const [boards, setBoards] = useState([]);
-  const [editingBoardId, setEditingBoardId] = useState(null);
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [boardToDelete, setBoardToDelete] = useState(null);
+const Create: React.FC<CreateProps> = ({ isOpen, onClose, onBoardUpdate, boards, setBoards }: CreateProps) => {
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [editingBoardId, setEditingBoardId] = useState<number | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const [boardToDelete, setBoardToDelete] = useState<number | null>(null);
 
   useEffect(() => {
-    const storedBoards = JSON.parse(window.localStorage.getItem("boards"));
+    const storedBoards = JSON.parse(window.localStorage.getItem("boards")) as Board[];
     if (storedBoards) {
       setBoards(storedBoards);
     }
   }, []);
 
-  const handleInputChange = (e, setter) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<string>>) => {
     setter(e.target.value);
   };
 
@@ -50,8 +81,8 @@ function Create({ isOpen, onClose, onBoardUpdate, boards, setBoards }) {
 
   const handleAddBoard = () => {
     if (name && description) {
-      const newBoard = {
-        id: Date.now(),
+      const newBoard: Board = {
+        _id: Date.now(),
         name,
         description,
         kanbans: [
@@ -68,14 +99,11 @@ function Create({ isOpen, onClose, onBoardUpdate, boards, setBoards }) {
     }
   };
 
-  const handleDeleteBoard = (id) => {
-    //const updatedBoards = boards.filter((board) => board.id !== id);
-    console.log(id);
-    updateBoards({ id: id }, "delete");
+  const handleDeleteBoard = (id: number) => {
+    updateBoards({ id }, "delete");
   };
 
-  const handleEdit = (id) => {
-    console.log(id);
+  const handleEdit = (id: number) => {
     const boardToEdit = boards.find((board) => board._id === id);
     if (boardToEdit) {
       setName(boardToEdit.name);
@@ -85,18 +113,15 @@ function Create({ isOpen, onClose, onBoardUpdate, boards, setBoards }) {
   };
 
   const handleSaveEdit = () => {
-    console.log(editingBoardId, boards);
     let updatedBoards = boards.filter((board) => board._id == editingBoardId);
     updatedBoards[0].name = name;
     updatedBoards[0].description = description;
     setName("");
     setDescription("");
-    console.log(updatedBoards);
     updateBoards({ board: updatedBoards[0], id: editingBoardId }, "update");
   };
 
   const handleConfirmDelete = () => {
-    console.log(boardToDelete);
     if (boardToDelete) {
       handleDeleteBoard(boardToDelete);
       setConfirmDelete(false);
@@ -108,7 +133,7 @@ function Create({ isOpen, onClose, onBoardUpdate, boards, setBoards }) {
     setBoardToDelete(null);
   };
 
-  const updateBoards = (data, type) => {
+  const updateBoards = (data: any, type: string) => {
     handleCloseModal();
     onBoardUpdate(data, type);
   };
@@ -196,7 +221,7 @@ function Create({ isOpen, onClose, onBoardUpdate, boards, setBoards }) {
             {boards.length > 0 ? (
               <ul>
                 {boards?.map((board) => (
-                  <li key={board.id} className="mb-2 flex items-center">
+                  <li key={board._id} className="mb-2 flex items-center">
                     <span className="font-semibold mr-2">{board.name}:</span>{" "}
                     {board.description}
                     <Button
@@ -248,6 +273,6 @@ function Create({ isOpen, onClose, onBoardUpdate, boards, setBoards }) {
       </Modal>
     </>
   );
-}
+};
 
 export default Create;

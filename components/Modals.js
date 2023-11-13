@@ -1,5 +1,5 @@
 import React from "react";
-import CreateModal from "@/components/CreateModal";
+import CreateModal from "@/components/CreateModal.tsx";
 import TaskModal from "@/components/TaskModal";
 
 function Modals({

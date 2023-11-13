@@ -14,6 +14,7 @@ import Dropdown from "@/components/Dropdown";
 import Button from "@/components/Button";
 import TaskModal from "@/components/TaskModal";
 import CreateModal from "@/components/CreateModal";
+import makeApiCalls from "@/utils/makeApiCalls";
 
 function createGuidId() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -76,18 +77,7 @@ export default function Home() {
       const storedBoards =
         JSON.parse(window.localStorage.getItem("boards")) || [];
       setBoards(storedBoards);
-      setBoardData(
-        storedBoards[0] || {
-          id: Date.now(),
-          name: "Initial Card",
-          description: "",
-          kanbans: [
-            { name: "todo", items: [] },
-            { name: "in_progress", items: [] },
-            { name: "completed", items: [] },
-          ],
-        }
-      );
+      setBoardData(storedBoards[0]);
       if (storedBoards[0]) {
         setIsData(true);
       } else {
@@ -220,7 +210,7 @@ export default function Home() {
             </div>
             <DragDropContext onDragEnd={onDragEnd}>
               <div className="grid grid-cols-4 gap-5 my-5">
-                {boardData.kanbans.map((board, bIndex) => (
+                {boardData?.kanbans?.map((board, bIndex) => (
                   <div key={board.name}>
                     <Droppable droppableId={bIndex.toString()}>
                       {(provided, snapshot) => (
@@ -237,7 +227,6 @@ export default function Home() {
                               <span className="text-2xl text-gray-600">
                                 {board.name}
                               </span>
-                              <DotsVerticalIcon className="w-5 h-5 text-gray-500" />
                             </h4>
 
                             <div

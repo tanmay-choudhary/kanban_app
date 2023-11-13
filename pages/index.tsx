@@ -1,6 +1,6 @@
 import Layout from "../components/Layout";
 import { useEffect, useState } from "react";
-import Dropdown from "@/components/Dropdown";
+import Dropdown from "@/components/Dropdown.tsx";
 import Button from "@/components/Button";
 import DragDrop from "@/components/DragDrop";
 import Modals from "@/components/Modals";

@@ -1,8 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, MouseEvent } from "react";
 
-const Dropdown = ({ options, onSelect, id, setBoardData, boards }) => {
+interface DropdownProps {
+  options: Option[];
+  onSelect: (option: Option) => void;
+  id: string;
+  setBoardData: (board: Board) => void;
+  boards: Board[];
+}
+
+interface Option {
+  id: number;
+  name: string;
+  // Add other properties as needed
+}
+
+interface Board {
+  _id: number;
+  name: string;
+  // Add other properties as needed
+}
+
+const Dropdown: React.FC<DropdownProps> = ({ options, onSelect, id, setBoardData, boards }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(options[0] || null);
+  const [selectedOption, setSelectedOption] = useState<Option | null>(options[0] || null);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -14,12 +34,12 @@ const Dropdown = ({ options, onSelect, id, setBoardData, boards }) => {
     }
   }, [options]);
 
-  const handleSelect = (option) => {
+  const handleSelect = (option: Option) => {
     setSelectedOption(option);
     onSelect(option);
     setIsOpen(false);
 
-    const selectedBoard = boards.find((board) => board._id === option._id);
+    const selectedBoard = boards.find((board) => board._id === option.id);
     if (selectedBoard) {
       setBoardData(selectedBoard);
     }
@@ -33,7 +53,7 @@ const Dropdown = ({ options, onSelect, id, setBoardData, boards }) => {
             type="button"
             onClick={toggleDropdown}
             className="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:border-blue-300 focus:ring focus:ring-blue-200"
-            id="options-menu"
+            id={id}
             aria-haspopup="true"
             aria-expanded={isOpen}
           >
@@ -61,7 +81,7 @@ const Dropdown = ({ options, onSelect, id, setBoardData, boards }) => {
             className="py-1"
             role="menu"
             aria-orientation="vertical"
-            aria-labelledby="options-menu"
+            aria-labelledby={id}
           >
             {options.map((option) => (
               <button
